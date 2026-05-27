@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        html, body, #container {
+            position: absolute; left: 0; top: 0; width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+
+    <script src="vs/require.js"></script>
+    <script>
+        require.config({ paths: { 'vs': './vs' }});
+
+        let editor;
+
+        require(['vs/editor/editor.main'], function() {
+            editor = monaco.editor.create(document.getElementById('container'), {
+                value: '// Welcome to your Android IDE\nfun main() {\n    println("Hello, Tablet!")\n}',
+                language: 'kotlin',
+                theme: 'vs-dark',
+                automaticLayout: true,
+                minimap: { enabled: false },
+                fontSize: 16
+            });
+
+            // Send data back to Kotlin when the text changes
+            editor.onDidChangeModelContent(function() {
+                if (window.AndroidBridge) {
+                    window.AndroidBridge.onTextChanged(editor.getValue());
+                }
+            });
+        });
+
+        // Kotlin will call this to inject files into the editor
+        function setEditorCode(newCode) {
+            if (editor) {
+                editor.setValue(newCode);
+            }
+        }
+    </script>
+</body>
+</html>
